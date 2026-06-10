@@ -1,4 +1,4 @@
-import { carsApi, clientsApi, employeesApi, ordersApi, queueApi, reportsApi, type Car, type Client, type Employee, type RepairOrder } from '~/services/resourcesApi'
+import { carsApi, clientsApi, employeesApi, ordersApi, queueApi, reportsApi, type Car, type Client, type Employee, type RepairOrder, type ReportsSummary } from '~/services/resourcesApi'
 
 function createResourceStore<T, TData>(api: {
   list: (params?: Record<string, string | number | undefined>) => Promise<{ items: T[], total: number }>
@@ -66,7 +66,7 @@ export const useQueueStore = defineStore('queue', () => {
 })
 
 export const useReportsStore = defineStore('reports', () => {
-  const summary = ref<any>(null)
+  const summary = ref<ReportsSummary | null>(null)
   const loading = ref(false)
 
   async function fetchSummary() {

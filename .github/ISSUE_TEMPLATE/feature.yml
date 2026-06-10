@@ -1,0 +1,26 @@
+name: Feature
+description: Track a product or engineering feature
+title: "[Feature]: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: value
+    attributes:
+      label: User value
+      description: What workflow or outcome improves?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete checks that make the task done.
+    validations:
+      required: true
+  - type: textarea
+    id: test-plan
+    attributes:
+      label: Test plan
+      description: Commands and manual scenarios.
+    validations:
+      required: true

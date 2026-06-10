@@ -31,7 +31,7 @@ export async function createSession(event: H3Event, payload: SessionPayload) {
   })
 }
 
-export function clearSession(event: H3Event) {
+export function clearAuthSession(event: H3Event) {
   deleteCookie(event, cookieName, { path: '/' })
 }
 
@@ -55,7 +55,7 @@ export async function getSessionUser(event: H3Event) {
       select: { id: true, name: true, email: true, role: true, createdAt: true, updatedAt: true }
     })
   } catch {
-    clearSession(event)
+    clearAuthSession(event)
     return null
   }
 }

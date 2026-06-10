@@ -20,6 +20,15 @@ export type RepairOrder = {
   queuePosition: number
 }
 
+export type ReportsSummary = {
+  clients: number
+  cars: number
+  activeOrders: number
+  completedOrders: number
+  byStatus: { status: RepairStatus, _count: { status: number } }[]
+  mechanics: { id: number, name: string, _count: { assignedOrders: number } }[]
+}
+
 function query(params: Record<string, string | number | undefined>) {
   const queryParams = new URLSearchParams()
   Object.entries(params).forEach(([key, value]) => {
@@ -64,5 +73,5 @@ export const employeesApi = {
 }
 
 export const reportsApi = {
-  summary: () => apiFetch('/api/reports/summary')
+  summary: () => apiFetch<ReportsSummary>('/api/reports/summary')
 }

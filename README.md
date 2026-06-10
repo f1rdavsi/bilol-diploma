@@ -1,75 +1,73 @@
-# Nuxt Minimal Starter
+# AutoService Queue
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Full-stack Nuxt приложение для управления очередью ремонта автомобилей: клиенты, автомобили, заявки, статусы, механики, отчеты и роли доступа.
 
-## Setup
+## Быстрый запуск одной командой
 
-Make sure to install dependencies:
+На Windows из корня проекта:
 
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+```bat
+.\start.bat
 ```
 
-## Development Server
+Скрипт сам создает `.env`, устанавливает зависимости, запускает MySQL, применяет Prisma schema, запускает seed и стартует Nuxt на `http://127.0.0.1:3002`.
 
-Start the development server on `http://localhost:3000`:
+## Требования
+
+- Node.js 20+ или 24+
+- Docker Desktop
+- npm
+
+## .env
+
+Файл `.env` находится в корне проекта локально. Если его нет, `.\start.bat` создаст его из `.env.example`:
+
+```env
+DATABASE_URL="mysql://autoservice:autoservice_password@127.0.0.1:3306/autoservice_queue"
+JWT_SECRET="change-this-secret-before-production"
+NUXT_PUBLIC_API_URL=""
+```
+
+Для реального продакшена `JWT_SECRET` нужно заменить.
+
+## Доступы для проверки
+
+```txt
+admin@autoservice.local / password123
+manager@autoservice.local / password123
+mechanic@autoservice.local / password123
+```
+
+## Полезные команды
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
+npm run launch
+npm run typecheck
+npm run lint
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npx prisma studio
 ```
 
-Locally preview production build:
+## Что уже реализовано
 
-```bash
-# npm
-npm run preview
+- Nuxt full-stack приложение с `app/` и `server/api`.
+- Авторизация через JWT в httpOnly cookie.
+- Роли `ROLE_ADMIN`, `ROLE_MANAGER`, `ROLE_MECHANIC`.
+- CRUD для клиентов, автомобилей, заявок и сотрудников.
+- Очередь ремонта и изменение позиции.
+- Dashboard и reports summary.
+- Prisma + MySQL + seed.
+- Tailwind dark mode, Pinia stores, API service layer.
+- GitHub templates, план, дизайн-документация и workflow docs.
 
-# pnpm
-pnpm preview
+## Идеи для сильных фич
 
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- Детальная карточка заявки с таймлайном ремонта.
+- Комментарии механика и история смены статусов.
+- Уведомления менеджеру при задержке ремонта.
+- Drag-and-drop очередь.
+- Календарь загрузки постов и механиков.
+- Экспорт отчетов в PDF/Excel.
+- Фото автомобиля до/после ремонта.
+- SLA-индикаторы: просрочка, риск задержки, приоритет клиента.

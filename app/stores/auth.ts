@@ -16,9 +16,11 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     try {
       user.value = await authApi.login({ email, password })
+      useToastStore().success('Вход выполнен', 'Добро пожаловать в панель управления')
       await navigateTo('/dashboard')
     } catch {
       error.value = 'Неверный email или пароль'
+      useToastStore().error('Не удалось войти', error.value)
     } finally {
       loading.value = false
     }
@@ -27,6 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     await authApi.logout()
     user.value = null
+    useToastStore().info('Вы вышли из системы')
     await navigateTo('/auth/login')
   }
 
