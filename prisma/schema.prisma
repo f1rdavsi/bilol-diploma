@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ROLE_ADMIN
+  ROLE_MANAGER
+  ROLE_MECHANIC
+}
+
+enum RepairStatus {
+  QUEUE
+  DIAGNOSTICS
+  IN_REPAIR
+  WAITING_PARTS
+  COMPLETED
+  HANDED_OVER
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  name           String
+  email          String        @unique
+  password       String
+  role           UserRole      @default(ROLE_MECHANIC)
+  assignedOrders RepairOrder[] @relation("AssignedOrders")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Client {
+  id        Int           @id @default(autoincrement())
+  fullName  String        @map("full_name")
+  phone     String
+  address   String?
+  cars      Car[]
+  orders    RepairOrder[]
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("clients")
+}
+
+model Car {
+  id          Int           @id @default(autoincrement())
+  clientId    Int           @map("client_id")
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  brand       String
+  model       String
+  year        Int
+  vin         String        @unique
+  plateNumber String        @unique @map("plate_number")
+  orders      RepairOrder[]
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@map("cars")
+}
+
+model RepairOrder {
+  id                 Int          @id @default(autoincrement())
+  clientId           Int          @map("client_id")
+  carId              Int          @map("car_id")
+  employeeId         Int?         @map("employee_id")
+  client             Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  car                Car          @relation(fields: [carId], references: [id], onDelete: Restrict)
+  employee           User?        @relation("AssignedOrders", fields: [employeeId], references: [id], onDelete: SetNull)
+  problemDescription String       @db.Text @map("problem_description")
+  status             RepairStatus @default(QUEUE)
+  price              Decimal      @default(0) @db.Decimal(10, 2)
+  queuePosition      Int          @default(0) @map("queue_position")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  @@index([status, queuePosition])
+  @@map("repair_orders")
+}
