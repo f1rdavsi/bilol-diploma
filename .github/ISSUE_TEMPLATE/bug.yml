@@ -1,0 +1,25 @@
+name: Bug
+description: Track a defect or regression
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is broken?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: test-plan
+    attributes:
+      label: Verification
+      description: How to prove the fix works.
+    validations:
+      required: true

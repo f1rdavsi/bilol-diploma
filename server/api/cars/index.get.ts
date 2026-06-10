@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import { requireRole, staffRoles } from '../../utils/auth'
 import { listQuery } from '../../utils/query'
 import { prisma } from '../../utils/prisma'

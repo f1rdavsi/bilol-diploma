@@ -8,7 +8,7 @@ const search = useDebouncedSearch(value => store.fetchItems({ search: value }))
 
 await Promise.all([callOnce('cars', () => store.fetchItems(), { mode: 'navigation' }), callOnce('clients-for-cars', () => clients.fetchItems({ pageSize: 100 }), { mode: 'navigation' })])
 
-function edit(row: any) {
+function edit(row: Record<string, unknown>) {
   Object.assign(form, row)
 }
 
@@ -39,7 +39,7 @@ async function save() {
       <input v-model="form.plateNumber" required placeholder="Гос. номер">
       <AppButton type="submit">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
     </form>
-    <DataTable :columns="[{ key: 'brand', label: 'Марка' }, { key: 'model', label: 'Модель' }, { key: 'plateNumber', label: 'Номер' }, { key: 'vin', label: 'VIN' }]" :rows="store.items as any" :loading="store.loading">
+    <DataTable :columns="[{ key: 'brand', label: 'Марка' }, { key: 'model', label: 'Модель' }, { key: 'plateNumber', label: 'Номер' }, { key: 'vin', label: 'VIN' }]" :rows="store.items as Record<string, unknown>[]" :loading="store.loading">
       <template #actions="{ row }">
         <AppButton variant="ghost" @click="edit(row)">Изменить</AppButton>
         <AppButton variant="danger" @click="store.remove(row.id)">Удалить</AppButton>

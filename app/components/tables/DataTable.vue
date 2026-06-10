@@ -1,7 +1,7 @@
 <script setup lang="ts">
 defineProps<{
   columns: { key: string, label: string }[]
-  rows: Record<string, any>[]
+  rows: Record<string, unknown>[]
   loading?: boolean
   empty?: string
 }>()
@@ -25,7 +25,7 @@ defineProps<{
             {{ empty || 'Нет данных' }}
           </td>
         </tr>
-        <tr v-for="row in rows" :key="row.id" class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
+        <tr v-for="row in rows" :key="String(row.id)" class="hover:bg-slate-50 dark:hover:bg-slate-800/60">
           <td v-for="column in columns" :key="column.key" class="px-4 py-3">
             <slot :name="column.key" :row="row">
               {{ row[column.key] }}

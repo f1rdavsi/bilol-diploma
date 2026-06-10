@@ -8,7 +8,7 @@ const search = useDebouncedSearch(value => store.fetchItems({ search: value }))
 
 await callOnce('employees', () => store.fetchItems(), { mode: 'navigation' })
 
-function edit(row: any) {
+function edit(row: Record<string, unknown>) {
   Object.assign(form, { ...row, password: '' })
 }
 
@@ -36,7 +36,7 @@ async function save() {
       </select>
       <AppButton type="submit">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
     </form>
-    <DataTable :columns="[{ key: 'name', label: 'Имя' }, { key: 'email', label: 'Email' }, { key: 'role', label: 'Роль' }]" :rows="store.items as any" :loading="store.loading">
+    <DataTable :columns="[{ key: 'name', label: 'Имя' }, { key: 'email', label: 'Email' }, { key: 'role', label: 'Роль' }]" :rows="store.items as Record<string, unknown>[]" :loading="store.loading">
       <template #actions="{ row }">
         <AppButton variant="ghost" @click="edit(row)">Изменить</AppButton>
         <AppButton variant="danger" @click="store.remove(row.id)">Удалить</AppButton>
