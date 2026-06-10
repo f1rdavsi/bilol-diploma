@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { TableRow } from '~/types/table'
+
 defineProps<{
   columns: { key: string, label: string }[]
-  rows: Record<string, unknown>[]
+  rows: TableRow[]
   loading?: boolean
   empty?: string
 }>()

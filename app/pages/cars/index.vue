@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { TableRow } from '~/types/table'
+
 definePageMeta({ layout: 'admin', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] })
 
 const store = useCarsStore()
@@ -39,7 +41,7 @@ async function save() {
       <input v-model="form.plateNumber" required placeholder="Гос. номер">
       <AppButton type="submit">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
     </form>
-    <DataTable :columns="[{ key: 'brand', label: 'Марка' }, { key: 'model', label: 'Модель' }, { key: 'plateNumber', label: 'Номер' }, { key: 'vin', label: 'VIN' }]" :rows="store.items as Record<string, unknown>[]" :loading="store.loading">
+    <DataTable :columns="[{ key: 'brand', label: 'Марка' }, { key: 'model', label: 'Модель' }, { key: 'plateNumber', label: 'Номер' }, { key: 'vin', label: 'VIN' }]" :rows="store.items as TableRow[]" :loading="store.loading">
       <template #actions="{ row }">
         <AppButton variant="ghost" @click="edit(row)">Изменить</AppButton>
         <AppButton variant="danger" @click="store.remove(row.id)">Удалить</AppButton>

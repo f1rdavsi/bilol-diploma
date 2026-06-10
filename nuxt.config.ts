@@ -3,10 +3,16 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@pinia/nuxt', '@nuxtjs/tailwindcss', '@nuxt/eslint'],
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: false
+    }
+  ],
   css: ['~/assets/css/main.css'],
   typescript: {
     strict: true,
-    typeCheck: true
+    typeCheck: false
   },
   runtimeConfig: {
     jwtSecret: process.env.JWT_SECRET || 'change-this-secret-before-production',

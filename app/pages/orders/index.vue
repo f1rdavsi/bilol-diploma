@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RepairStatus } from '~/services/resourcesApi'
+import type { TableRow } from '~/types/table'
 
 definePageMeta({ layout: 'admin' })
 
@@ -58,10 +59,10 @@ async function save() {
       <textarea v-model="form.problemDescription" required class="md:col-span-2" placeholder="Описание неисправности" />
       <AppButton type="submit">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
     </form>
-    <DataTable :columns="[{ key: 'client', label: 'Клиент' }, { key: 'car', label: 'Авто' }, { key: 'status', label: 'Статус' }, { key: 'price', label: 'Стоимость' }]" :rows="store.items as Record<string, unknown>[]" :loading="store.loading">
+    <DataTable :columns="[{ key: 'client', label: 'Клиент' }, { key: 'car', label: 'Авто' }, { key: 'status', label: 'Статус' }, { key: 'price', label: 'Стоимость' }]" :rows="store.items as TableRow[]" :loading="store.loading">
       <template #client="{ row }">{{ row.client?.fullName }}</template>
       <template #car="{ row }">{{ row.car?.brand }} {{ row.car?.model }}</template>
-      <template #status="{ row }"><StatusBadge :status="row.status" /></template>
+      <template #status="{ row }"><StatusBadge :status="String(row.status)" /></template>
       <template #actions="{ row }">
         <AppButton variant="ghost" @click="edit(row)">Изменить</AppButton>
         <AppButton variant="danger" @click="store.remove(row.id)">Удалить</AppButton>

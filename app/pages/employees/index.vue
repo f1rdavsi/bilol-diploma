@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { TableRow } from '~/types/table'
+
 definePageMeta({ layout: 'admin', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] })
 
 const store = useEmployeesStore()
@@ -36,7 +38,7 @@ async function save() {
       </select>
       <AppButton type="submit">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
     </form>
-    <DataTable :columns="[{ key: 'name', label: 'Имя' }, { key: 'email', label: 'Email' }, { key: 'role', label: 'Роль' }]" :rows="store.items as Record<string, unknown>[]" :loading="store.loading">
+    <DataTable :columns="[{ key: 'name', label: 'Имя' }, { key: 'email', label: 'Email' }, { key: 'role', label: 'Роль' }]" :rows="store.items as TableRow[]" :loading="store.loading">
       <template #actions="{ row }">
         <AppButton variant="ghost" @click="edit(row)">Изменить</AppButton>
         <AppButton variant="danger" @click="store.remove(row.id)">Удалить</AppButton>
