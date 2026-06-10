@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BarChart3, Car, ClipboardList, LayoutDashboard, ListOrdered, UsersRound, Wrench } from 'lucide-vue-next'
+import { BarChart3, Blocks, Car, ClipboardList, LayoutDashboard, ListOrdered, UsersRound, Wrench } from 'lucide-vue-next'
 
 const items = [
   { to: '/dashboard', label: 'Панель', icon: LayoutDashboard },
@@ -8,7 +8,8 @@ const items = [
   { to: '/orders', label: 'Заявки', icon: ClipboardList },
   { to: '/queue', label: 'Очередь', icon: ListOrdered },
   { to: '/employees', label: 'Сотрудники', icon: Wrench },
-  { to: '/reports', label: 'Отчеты', icon: BarChart3 }
+  { to: '/reports', label: 'Отчеты', icon: BarChart3 },
+  { to: '/components', label: 'UI Kit', icon: Blocks }
 ]
 </script>
 
