@@ -9,6 +9,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "launch": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-dev.ps1",
     "lint": "eslint .",
     "preview": "nuxt preview",
     "typecheck": "nuxt typecheck",
