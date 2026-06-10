@@ -97,11 +97,11 @@ const flow = [
           <div class="space-y-4">
             <label class="block">
               <span class="mb-1 block text-sm font-medium">Email</span>
-              <input v-model="email" class="w-full" type="email" autocomplete="email" required>
+              <UiInput v-model="email" type="email" autocomplete="email" required />
             </label>
             <label class="block">
               <span class="mb-1 block text-sm font-medium">Пароль</span>
-              <input v-model="password" class="w-full" type="password" autocomplete="current-password" required>
+              <UiInput v-model="password" type="password" autocomplete="current-password" required />
             </label>
           </div>
 
