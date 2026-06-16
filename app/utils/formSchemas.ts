@@ -44,9 +44,25 @@ export const orderFormSchema = z.object({
   carId: z.coerce.number().int().positive('Выберите автомобиль'),
   employeeId: z.coerce.number().int().positive().nullable().optional(),
   problemDescription: requiredText.min(10, 'Опишите проблему минимум в 10 символов').max(2000),
-  status: z.enum(['QUEUE', 'DIAGNOSTICS', 'IN_REPAIR', 'WAITING_PARTS', 'COMPLETED', 'HANDED_OVER']),
+  status: z.enum(['NEW', 'QUEUE', 'DIAGNOSTICS', 'IN_REPAIR', 'WAITING_PARTS', 'COMPLETED', 'HANDED_OVER']),
   price: z.coerce.number().min(0, 'Цена не может быть отрицательной').max(999999),
   queuePosition: z.coerce.number().int().min(0, 'Позиция не может быть отрицательной')
+})
+
+export const serviceFormSchema = z.object({
+  id: z.coerce.number().optional(),
+  slug: z.string().trim().toLowerCase().min(2, 'Минимум 2 символа').max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Используйте latin-slug'),
+  title: requiredText.min(2, 'Минимум 2 символа').max(120),
+  short: requiredText.min(10, 'Минимум 10 символов').max(500),
+  description: requiredText.min(20, 'Минимум 20 символов').max(3000),
+  price: z.coerce.number().min(0, 'Цена не может быть отрицательной').max(999999),
+  currency: z.string().trim().toUpperCase().min(3).max(8).default('TJS'),
+  image: z.string().trim().url('Укажите ссылку на изображение').max(1000),
+  icon: z.string().trim().min(2).max(80),
+  benefitsText: requiredText,
+  stepsText: requiredText,
+  isActive: z.coerce.boolean(),
+  sortOrder: z.coerce.number().int().min(0).max(9999)
 })
 
 export function getFormErrors(error: z.ZodError): FormErrors {

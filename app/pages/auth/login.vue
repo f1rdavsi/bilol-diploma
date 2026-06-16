@@ -51,7 +51,7 @@ const flow = [
               </p>
 
               <div class="mt-8 grid gap-3 sm:grid-cols-3">
-                <div v-for="metric in metrics" :key="metric.label" class="rounded-lg border border-white/10 bg-white/8 p-4 backdrop-blur">
+                <div v-for="metric in metrics" :key="metric.label" class="rounded-lg border border-white/10 bg-white/[0.08] p-4 backdrop-blur">
                   <p class="text-3xl font-bold text-white">{{ metric.value }}</p>
                   <p class="mt-1 text-sm text-slate-300">{{ metric.label }}</p>
                 </div>

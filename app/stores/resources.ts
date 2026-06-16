@@ -1,4 +1,4 @@
-import { carsApi, clientsApi, employeesApi, ordersApi, queueApi, reportsApi, type Car, type Client, type Employee, type RepairOrder, type ReportsSummary } from '~/services/resourcesApi'
+import { carsApi, clientsApi, employeesApi, ordersApi, queueApi, reportsApi, servicesApi, type Car, type Client, type Employee, type RepairOrder, type ReportsSummary, type Service } from '~/services/resourcesApi'
 
 function createResourceStore<T, TData>(api: {
   list: (params?: Record<string, string | number | undefined>) => Promise<{ items: T[], total: number }>
@@ -43,6 +43,7 @@ export const useClientsStore = defineStore('clients', () => createResourceStore<
 export const useCarsStore = defineStore('cars', () => createResourceStore<Car, Partial<Car>>(carsApi))
 export const useOrdersStore = defineStore('orders', () => createResourceStore<RepairOrder, Partial<RepairOrder>>(ordersApi))
 export const useEmployeesStore = defineStore('employees', () => createResourceStore<Employee, Partial<Employee> & { password?: string }>(employeesApi))
+export const useServicesStore = defineStore('services', () => createResourceStore<Service, Partial<Service>>(servicesApi))
 
 export const useQueueStore = defineStore('queue', () => {
   const items = ref<RepairOrder[]>([])
@@ -62,7 +63,11 @@ export const useQueueStore = defineStore('queue', () => {
     await fetchItems()
   }
 
-  return { items, loading, fetchItems, move }
+  function setItems(nextItems: RepairOrder[]) {
+    items.value = nextItems
+  }
+
+  return { items, loading, fetchItems, move, setItems }
 })
 
 export const useReportsStore = defineStore('reports', () => {

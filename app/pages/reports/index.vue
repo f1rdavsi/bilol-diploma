@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { BarChart3, Download, Wrench } from 'lucide-vue-next'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] })
 
 const reports = useReportsStore()
 const toast = useToastStore()

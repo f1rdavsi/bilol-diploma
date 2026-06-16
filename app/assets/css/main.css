@@ -35,3 +35,39 @@ textarea {
 .page-muted {
   @apply text-sm text-slate-500 dark:text-slate-400;
 }
+
+.section-pad {
+  @apply py-20 md:py-28;
+}
+
+.icon-3d {
+  transform: perspective(900px) rotateX(10deg) rotateY(-14deg);
+  transform-style: preserve-3d;
+}
+
+.icon-3d::after {
+  position: absolute;
+  inset: auto 12px -10px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(8, 145, 178, 0.28);
+  filter: blur(12px);
+  content: "";
+}
+
+.hero-dashboard {
+  animation: float-panel 6s ease-in-out infinite;
+  transform: perspective(1200px) rotateX(7deg) rotateY(-10deg);
+  transform-style: preserve-3d;
+}
+
+@keyframes float-panel {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -14px;
+  }
+}

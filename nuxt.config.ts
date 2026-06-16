@@ -19,8 +19,5 @@ export default defineNuxtConfig({
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL || ''
     }
-  },
-  routeRules: {
-    '/': { redirect: '/dashboard' }
   }
 })

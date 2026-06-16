@@ -1,17 +1,27 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  const publicPaths = ['/', '/about', '/services', '/contacts', '/sitemap.xml', '/robots.txt']
+  const isPublicPath = publicPaths.includes(to.path) || to.path.startsWith('/services/')
+  const isAuthPath = to.path.startsWith('/auth')
   const auth = useAuthStore()
 
-  if (!auth.user) {
+  if (isPublicPath) {
+    return
+  }
+
+  if (!auth.checked) {
     await auth.fetchUser()
   }
 
-  if (to.path.startsWith('/auth')) {
+  if (isAuthPath) {
     if (auth.user) return navigateTo('/dashboard')
     return
   }
 
   if (!auth.user) {
-    return navigateTo('/auth/login')
+    return navigateTo({
+      path: '/auth/login',
+      query: { redirect: to.fullPath }
+    })
   }
 
   const roles = to.meta.roles as string[] | undefined
