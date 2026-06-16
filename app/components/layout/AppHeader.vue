@@ -11,7 +11,7 @@ function toggleTheme() {
 </script>
 
 <template>
-  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/82 px-4 py-3 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/82 md:px-6">
+  <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/[0.82] px-4 py-3 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/[0.82] md:px-6">
     <div class="mx-auto flex w-full max-w-7xl items-center justify-between gap-4">
       <div>
         <p class="text-xs uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-300">Текущая смена</p>

@@ -1,11 +1,26 @@
 import type { ListResponse } from './api'
 import { apiFetch } from './api'
 
-export type RepairStatus = 'QUEUE' | 'DIAGNOSTICS' | 'IN_REPAIR' | 'WAITING_PARTS' | 'COMPLETED' | 'HANDED_OVER'
+export type RepairStatus = 'NEW' | 'QUEUE' | 'DIAGNOSTICS' | 'IN_REPAIR' | 'WAITING_PARTS' | 'COMPLETED' | 'HANDED_OVER'
 
 export type Client = { id: number, fullName: string, phone: string, address?: string | null, cars?: Car[] }
 export type Car = { id: number, clientId: number, brand: string, model: string, year: number, vin: string, plateNumber: string, client?: Client }
 export type Employee = { id: number, name: string, email: string, role: string, _count?: { assignedOrders: number } }
+export type Service = {
+  id: number
+  slug: string
+  title: string
+  short: string
+  description: string
+  price: number
+  currency: string
+  image: string
+  icon: string
+  benefits: string[]
+  steps: string[]
+  isActive: boolean
+  sortOrder: number
+}
 export type RepairOrder = {
   id: number
   clientId: number
@@ -18,6 +33,18 @@ export type RepairOrder = {
   status: RepairStatus
   price: string | number
   queuePosition: number
+  statusHistory?: RepairOrderStatusHistory[]
+}
+
+export type RepairOrderStatusHistory = {
+  id: number
+  repairOrderId: number
+  changedById?: number | null
+  fromStatus?: RepairStatus | null
+  toStatus: RepairStatus
+  note?: string | null
+  createdAt: string
+  changedBy?: Employee | null
 }
 
 export type ReportsSummary = {
@@ -70,6 +97,18 @@ export const employeesApi = {
   create: (data: Partial<Employee> & { password?: string }) => apiFetch<Employee>('/api/employees', { method: 'POST', body: data }),
   update: (id: number, data: Partial<Employee> & { password?: string }) => apiFetch<Employee>(`/api/employees/${id}`, { method: 'PUT', body: data }),
   delete: (id: number) => apiFetch(`/api/employees/${id}`, { method: 'DELETE' })
+}
+
+export const servicesApi = {
+  list: (params: Record<string, string | number | undefined> = {}) => apiFetch<ListResponse<Service>>(`/api/services${query(params)}`),
+  create: (data: Partial<Service>) => apiFetch<Service>('/api/services', { method: 'POST', body: data }),
+  update: (id: number, data: Partial<Service>) => apiFetch<Service>(`/api/services/${id}`, { method: 'PUT', body: data }),
+  delete: (id: number) => apiFetch(`/api/services/${id}`, { method: 'DELETE' })
+}
+
+export const publicServicesApi = {
+  list: () => $fetch<ListResponse<Service>>('/api/public/services'),
+  get: (slug: string) => $fetch<Service>(`/api/public/services/${slug}`)
 }
 
 export const reportsApi = {

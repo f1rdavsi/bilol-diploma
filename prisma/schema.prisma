@@ -14,6 +14,7 @@ enum UserRole {
 }
 
 enum RepairStatus {
+  NEW
   QUEUE
   DIAGNOSTICS
   IN_REPAIR
@@ -29,6 +30,7 @@ model User {
   password       String
   role           UserRole      @default(ROLE_MECHANIC)
   assignedOrders RepairOrder[] @relation("AssignedOrders")
+  statusChanges  RepairOrderStatusHistory[] @relation("OrderStatusChanges")
   createdAt      DateTime      @default(now()) @map("created_at")
   updatedAt      DateTime      @updatedAt @map("updated_at")
 
@@ -70,8 +72,9 @@ model RepairOrder {
   client             Client       @relation(fields: [clientId], references: [id], onDelete: Restrict)
   car                Car          @relation(fields: [carId], references: [id], onDelete: Restrict)
   employee           User?        @relation("AssignedOrders", fields: [employeeId], references: [id], onDelete: SetNull)
+  statusHistory      RepairOrderStatusHistory[]
   problemDescription String       @db.Text @map("problem_description")
-  status             RepairStatus @default(QUEUE)
+  status             RepairStatus @default(NEW)
   price              Decimal      @default(0) @db.Decimal(10, 2)
   queuePosition      Int          @default(0) @map("queue_position")
   createdAt          DateTime     @default(now()) @map("created_at")
@@ -79,4 +82,53 @@ model RepairOrder {
 
   @@index([status, queuePosition])
   @@map("repair_orders")
+}
+
+model RepairOrderStatusHistory {
+  id            Int          @id @default(autoincrement())
+  repairOrderId Int          @map("repair_order_id")
+  repairOrder   RepairOrder  @relation(fields: [repairOrderId], references: [id], onDelete: Cascade)
+  changedById   Int?         @map("changed_by_id")
+  changedBy     User?        @relation("OrderStatusChanges", fields: [changedById], references: [id], onDelete: SetNull)
+  fromStatus    RepairStatus? @map("from_status")
+  toStatus      RepairStatus  @map("to_status")
+  note          String?      @db.Text
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  @@index([repairOrderId, createdAt])
+  @@map("repair_order_status_history")
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  short       String   @db.VarChar(500)
+  description String   @db.Text
+  price       Decimal  @default(0) @db.Decimal(10, 2)
+  currency    String   @default("TJS") @db.VarChar(8)
+  image       String   @db.VarChar(1000)
+  icon        String   @default("Wrench") @db.VarChar(80)
+  benefits    Json
+  steps       Json
+  isActive    Boolean  @default(true) @map("is_active")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("services")
+}
+
+model ServiceRequest {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String
+  car         String?
+  message     String?  @db.Text
+  serviceSlug String?  @map("service_slug")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("service_requests")
 }

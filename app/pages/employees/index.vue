@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Search, ShieldCheck } from 'lucide-vue-next'
+import { Plus, Search } from 'lucide-vue-next'
 import type { TableRow } from '~/types/table'
 import { employeeFormSchema, getFormErrors, type FormErrors } from '~/utils/formSchemas'
 
-definePageMeta({ layout: 'admin', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] })
+definePageMeta({ layout: 'admin', roles: ['ROLE_ADMIN'] })
 
 const store = useEmployeesStore()
 const toast = useToastStore()
@@ -12,20 +12,33 @@ const roles = [
   { value: 'ROLE_MANAGER', label: 'Менеджер' },
   { value: 'ROLE_MECHANIC', label: 'Механик' }
 ]
+const roleLabels = Object.fromEntries(roles.map(role => [role.value, role.label]))
+const formOpen = ref(false)
 const form = reactive({ id: 0, name: '', email: '', password: '', role: 'ROLE_MECHANIC' })
 const errors = ref<FormErrors>({})
 const search = useDebouncedSearch(value => store.fetchItems({ search: value }))
 
 await callOnce('employees', () => store.fetchItems(), { mode: 'navigation' })
 
-function edit(row: Record<string, unknown>) {
-  Object.assign(form, { ...row, password: '' })
-  errors.value = {}
-}
-
 function resetForm() {
   Object.assign(form, { id: 0, name: '', email: '', password: '', role: 'ROLE_MECHANIC' })
   errors.value = {}
+}
+
+function openCreate() {
+  resetForm()
+  formOpen.value = true
+}
+
+function edit(row: Record<string, unknown>) {
+  Object.assign(form, { ...row, password: '' })
+  errors.value = {}
+  formOpen.value = true
+}
+
+function closeForm() {
+  formOpen.value = false
+  resetForm()
 }
 
 async function save() {
@@ -40,7 +53,7 @@ async function save() {
   try {
     await store.save({ ...parsed.data, id: form.id || undefined, password: form.password || undefined })
     toast.success(form.id ? 'Сотрудник обновлен' : 'Сотрудник добавлен')
-    resetForm()
+    closeForm()
   } catch {
     toast.error('Не удалось сохранить сотрудника', 'Email может уже использоваться')
   }
@@ -63,24 +76,42 @@ async function remove(id: number) {
         <h1 class="page-title">Сотрудники</h1>
         <p class="page-muted">Пользователи системы и роли доступа. Всего: {{ store.total }}</p>
       </div>
-      <div class="relative w-full md:w-80">
-        <Search class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-        <UiInput v-model="search" class="pl-9" placeholder="Имя или email" />
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <div class="relative w-full sm:w-80">
+          <Search class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <UiInput v-model="search" class="pl-9" placeholder="Имя или email" />
+        </div>
+        <AppButton @click="openCreate">
+          <Plus class="size-4" />
+          Добавить сотрудника
+        </AppButton>
       </div>
     </div>
 
-    <UiCard class="p-4">
-      <div class="mb-4 flex items-center gap-2">
-        <div class="flex size-9 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">
-          <ShieldCheck class="size-5" />
+    <DataTable
+      :columns="[
+        { key: 'name', label: 'Имя' },
+        { key: 'email', label: 'Email' },
+        { key: 'role', label: 'Роль' }
+      ]"
+      :rows="store.items as TableRow[]"
+      :loading="store.loading"
+    >
+      <template #role="{ row }">
+        <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+          {{ roleLabels[String(row.role)] || row.role }}
+        </span>
+      </template>
+      <template #actions="{ row }">
+        <div class="flex justify-end gap-2">
+          <AppButton variant="ghost" size="sm" @click="edit(row)">Изменить</AppButton>
+          <AppButton variant="danger" size="sm" @click="remove(Number(row.id))">Удалить</AppButton>
         </div>
-        <div>
-          <h2 class="font-semibold">{{ form.id ? 'Редактировать сотрудника' : 'Новый сотрудник' }}</h2>
-          <p class="page-muted">Роль определяет доступ к разделам админки</p>
-        </div>
-      </div>
+      </template>
+    </DataTable>
 
-      <form class="grid gap-3 md:grid-cols-5" @submit.prevent="save">
+    <Modal :open="formOpen" :title="form.id ? 'Редактировать сотрудника' : 'Новый сотрудник'" @close="closeForm">
+      <form class="grid gap-4" @submit.prevent="save">
         <FormField label="Имя" :error="errors.name">
           <UiInput v-model="form.name" placeholder="Имя сотрудника" />
         </FormField>
@@ -88,30 +119,18 @@ async function remove(id: number) {
           <UiInput v-model="form.email" type="email" placeholder="email@example.com" />
         </FormField>
         <FormField label="Пароль" :error="errors.password">
-          <UiInput v-model="form.password" type="password" :placeholder="form.id ? 'Оставьте пустым' : 'Минимум 8 символов'" />
+          <UiInput v-model="form.password" type="password" :placeholder="form.id ? 'Оставьте пустым, чтобы не менять' : 'Минимум 8 символов'" />
         </FormField>
         <FormField label="Роль" :error="errors.role">
           <UiSelect v-model="form.role">
             <option v-for="role in roles" :key="role.value" :value="role.value">{{ role.label }}</option>
           </UiSelect>
         </FormField>
-        <div class="flex items-end gap-2">
-          <AppButton type="submit" class="flex-1">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
-          <AppButton v-if="form.id" variant="outline" @click="resetForm">Отмена</AppButton>
+        <div class="flex justify-end gap-2">
+          <AppButton variant="outline" @click="closeForm">Отмена</AppButton>
+          <AppButton type="submit">{{ form.id ? 'Сохранить' : 'Добавить' }}</AppButton>
         </div>
       </form>
-    </UiCard>
-
-    <DataTable :columns="[{ key: 'name', label: 'Имя' }, { key: 'email', label: 'Email' }, { key: 'role', label: 'Роль' }]" :rows="store.items as TableRow[]" :loading="store.loading">
-      <template #role="{ row }">
-        <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">{{ row.role }}</span>
-      </template>
-      <template #actions="{ row }">
-        <div class="flex justify-end gap-2">
-          <AppButton variant="ghost" size="sm" @click="edit(row)">Изменить</AppButton>
-          <AppButton variant="danger" size="sm" @click="remove(row.id)">Удалить</AppButton>
-        </div>
-      </template>
-    </DataTable>
+    </Modal>
   </section>
 </template>

@@ -1,26 +1,53 @@
 <script setup lang="ts">
-import { ListOrdered, TimerReset } from 'lucide-vue-next'
-import type { TableRow } from '~/types/table'
+import { DragDropProvider, PointerSensor, type DragEndEvent } from '@dnd-kit/vue'
+import { PointerActivationConstraints } from '@dnd-kit/dom'
+import { move as moveItems } from '@dnd-kit/helpers'
+import { ListOrdered, RefreshCw, TimerReset } from 'lucide-vue-next'
+import type { RepairOrder } from '~/services/resourcesApi'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', roles: ['ROLE_ADMIN', 'ROLE_MANAGER'] })
 
 const store = useQueueStore()
 const toast = useToastStore()
+const pending = ref(false)
+const sensors = [
+  PointerSensor.configure({
+    activationConstraints: [
+      new PointerActivationConstraints.Distance({ value: 6 })
+    ]
+  })
+]
 
 await callOnce('queue', () => store.fetchItems(), { mode: 'navigation' })
 
-async function move(id: number, queuePosition: number) {
-  if (!Number.isInteger(queuePosition) || queuePosition < 1) {
-    toast.error('Некорректная позиция', 'Позиция должна быть больше нуля')
-    return
-  }
+async function persistOrder(order: RepairOrder[], movedId: number) {
+  pending.value = true
 
   try {
-    await store.move(id, queuePosition)
+    const queuePosition = order.findIndex(item => item.id === movedId) + 1
+
+    if (queuePosition < 1) return
+
+    await store.move(movedId, queuePosition)
     toast.success('Очередь обновлена')
   } catch {
+    await store.fetchItems()
     toast.error('Не удалось изменить очередь')
+  } finally {
+    pending.value = false
   }
+}
+
+async function handleDragEnd(event: DragEndEvent) {
+  if (event.canceled) return
+
+  const movedId = Number(event.operation.source?.id)
+  const nextItems = moveItems(store.items, event) as RepairOrder[]
+
+  if (!Number.isInteger(movedId) || nextItems.map(item => item.id).join(',') === store.items.map(item => item.id).join(',')) return
+
+  store.setItems(nextItems.map((item, index) => ({ ...item, queuePosition: index + 1 })))
+  await persistOrder(nextItems, movedId)
 }
 </script>
 
@@ -43,23 +70,38 @@ async function move(id: number, queuePosition: number) {
     </div>
 
     <UiCard class="border-cyan-200/70 bg-cyan-50/60 p-4 dark:border-cyan-900 dark:bg-cyan-950/30">
-      <div class="flex items-start gap-3">
-        <TimerReset class="mt-0.5 size-5 text-cyan-700 dark:text-cyan-300" />
-        <div>
-          <p class="font-semibold">Операционная очередь</p>
-          <p class="page-muted">Меняйте позицию прямо в таблице. После изменения список обновится автоматически.</p>
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3">
+          <TimerReset class="mt-0.5 size-5 text-cyan-700 dark:text-cyan-300" />
+          <div>
+            <p class="font-semibold">Операционная очередь</p>
+            <p class="page-muted">Зажмите карточку и потяните ее вверх или вниз, чтобы поменять приоритет ремонта.</p>
+          </div>
         </div>
+        <RefreshCw v-if="pending || store.loading" class="size-5 animate-spin text-cyan-700 dark:text-cyan-300" />
       </div>
     </UiCard>
 
-    <DataTable :columns="[{ key: 'queuePosition', label: 'Позиция' }, { key: 'client', label: 'Клиент' }, { key: 'car', label: 'Авто' }, { key: 'status', label: 'Статус' }, { key: 'employee', label: 'Механик' }]" :rows="store.items as TableRow[]" :loading="store.loading">
-      <template #client="{ row }">{{ row.client?.fullName }}</template>
-      <template #car="{ row }">{{ row.car?.brand }} {{ row.car?.model }} {{ row.car?.plateNumber }}</template>
-      <template #status="{ row }"><StatusBadge :status="String(row.status)" /></template>
-      <template #employee="{ row }">{{ row.employee?.name || 'Не назначен' }}</template>
-      <template #actions="{ row }">
-        <UiInput class="ml-auto w-24" type="number" min="1" :model-value="Number(row.queuePosition)" @change="move(row.id, Number(($event.target as HTMLInputElement).value))" />
+    <ClientOnly>
+      <DragDropProvider :sensors="sensors" @drag-end="handleDragEnd">
+        <ol class="space-y-3">
+          <QueueSortableItem
+            v-for="(order, index) in store.items"
+            :key="order.id"
+            :order="order"
+            :index="index"
+            :disabled="pending || store.loading"
+          />
+        </ol>
+      </DragDropProvider>
+
+      <template #fallback>
+        <UiCard class="p-6 text-sm text-slate-500 dark:text-slate-400">Загрузка очереди...</UiCard>
       </template>
-    </DataTable>
+    </ClientOnly>
+
+    <UiCard v-if="!store.loading && !store.items.length" class="p-10 text-center text-sm text-slate-500 dark:text-slate-400">
+      Нет активных заявок в очереди
+    </UiCard>
   </section>
 </template>

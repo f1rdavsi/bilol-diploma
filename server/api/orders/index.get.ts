@@ -28,7 +28,15 @@ export default defineEventHandler(async (event) => {
   const [items, total] = await Promise.all([
     prisma.repairOrder.findMany({
       where,
-      include: { client: true, car: true, employee: { select: { id: true, name: true, email: true, role: true } } },
+      include: {
+        client: true,
+        car: true,
+        employee: { select: { id: true, name: true, email: true, role: true } },
+        statusHistory: {
+          include: { changedBy: { select: { id: true, name: true, email: true, role: true } } },
+          orderBy: { createdAt: 'desc' }
+        }
+      },
       orderBy: [{ queuePosition: 'asc' }, { createdAt: 'desc' }],
       skip,
       take: pageSize

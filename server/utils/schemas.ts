@@ -41,7 +41,7 @@ export const orderSchema = z.object({
   carId: idSchema,
   employeeId: idSchema.optional().nullable(),
   problemDescription: requiredText.min(10).max(2000),
-  status: z.enum(RepairStatus).default(RepairStatus.QUEUE),
+  status: z.enum(RepairStatus).default(RepairStatus.NEW),
   price: z.coerce.number().min(0).max(999999).default(0),
   queuePosition: z.coerce.number().int().min(0).default(0)
 })
@@ -59,4 +59,27 @@ export const employeeSchema = z.object({
   email: z.email().trim().toLowerCase(),
   password: passwordSchema.optional(),
   role: z.enum(UserRole)
+})
+
+export const serviceSchema = z.object({
+  slug: z.string().trim().toLowerCase().min(2).max(80).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug должен быть в формате latin-slug'),
+  title: requiredText.min(2).max(120),
+  short: requiredText.min(10).max(500),
+  description: requiredText.min(20).max(3000),
+  price: z.coerce.number().min(0).max(999999),
+  currency: z.string().trim().toUpperCase().min(3).max(8).default('TJS'),
+  image: z.string().trim().url().max(1000),
+  icon: z.string().trim().min(2).max(80).default('Wrench'),
+  benefits: z.array(requiredText.max(180)).min(1).max(8),
+  steps: z.array(requiredText.max(180)).min(1).max(8),
+  isActive: z.coerce.boolean().default(true),
+  sortOrder: z.coerce.number().int().min(0).max(9999).default(0)
+})
+
+export const serviceRequestSchema = z.object({
+  name: requiredText.min(2).max(120),
+  phone: phoneSchema,
+  car: z.string().trim().max(160).optional().nullable(),
+  message: z.string().trim().max(2000).optional().nullable(),
+  serviceSlug: z.string().trim().toLowerCase().max(80).optional().nullable()
 })
